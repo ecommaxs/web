@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta https-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <title>SHOPIZZY | Your Last Shoping Bustop</title>
+    <!-- CSS-LINK -->
+    <link rel="stylesheet" href="ads.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bokor&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet"href="https://kit.font-awesome.com/36b5ceabf7.js">
+  </head>
+  <header>
+    <body>
+    <div class="logo"><h1>SHOP<span>IZZY</span></h1></div>
+    <nav>
+      <ul>
+        <li><a href="home.html">HOME</a></li>
+        <li><a href="product.html">PRODUCT</a></li>
+        <li><a href="advertise.html">ADVERTISE</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a href="user.html" class="user-icon">
+        <i class="fa fa-user"></i>
+      </a>
+      <a href="cart.html" class="cart-icon">
+        <i class="fa fa-shopping-basket"></i>
+      </a>
+      <a href="#" class="menu-icon" id="mi">
+        <i class="fa fa-bars"></i>
+      </a>
+      <a href="#" class="close-icon" id="ci" style="display: none;">
+        <i class="fa fa-times"></i>
+      </a>
+    </div>
+  </header>
+    <main>
+        <section class="ad-form-section">
+            <form id="adForm" onsubmit="return validateCoupons()">
+                <label for="productName">Product/Service Name:</label>
+                <input type="text" id="productName" name="productName" required>
+
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+
+                <label for="couponsLeft">Coupons Left:</label>
+                <input type="number" id="couponsLeft" name="couponsLeft" min="0" required>
+
+                <button type="submit">Submit</button>
+            </form>
+        </section>
+    </main>
+  <H1>COMING SOON</H1>
+  <script>
+    function validateCoupons() {
+    const couponsLeft = document.getElementById('couponsLeft').value;
+    if (couponsLeft > 0) {
+        alert('Your ad has been successfully submitted!');
+        return true;
+    } else {
+        alert('You need at least one coupon to submit an ad.');
+        return false;
+    }
+}
+
+  </script> 
+ </body>
+ <footer>
+  <p>© 2025 AdsPage. All rights reserved.</p>
+</footer>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta https-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/bogrands (1).png">
+    <title>My Cart | SHOPIZZY</title>
+    <!-- CSS-LINK -->
+    <link rel="stylesheet" href="style.css">                                        
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bokor&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet"href="https://kit.font-awesome.com/36b5ceabf7.js">
+    <link rel="stylesheet" href="cart.css">
+
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "RdvIt3TQ0uXJyqbdI",
+      });
+   })();
+</script>
+
+  </head>
+  <body>
+
+    <header>
+      <div class="logo"><h1>ECOMMERCE<span>WEBSITE</span></h1></div>
+      <nav>
+        <ul>
+          <li><a href="product.html">PRODUCT</a></li>
+        </ul>
+      </nav>
+      
+      <div class="header-actions">
+          <a href="user.html" class="user-icon">
+            <i class="fa fa-user-circle"></i>
+          </a>
+        <a href="#" class="menu-icon" id="mi">
+          <i class="fa fa-bars"></i>
+        </a>
+        <a href="#" class="close-icon" id="ci" style="display: none;">
+          <i class="fa fa-times"></i>
+        </a>
+      </div>
+    </header>
+
+    <div class="cart-page">
+      <h2>Cart</h2>
+      <table id="cart-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Options</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Del</th>
+          </tr>
+        </thead>
+        <tbody id="cart-table-body">
+          <!-- Cart items will be displayed here -->
+        </tbody>
+      </table>
+      <p id="total-price"></p>
+      <button id="clear-cart-btn">Clear Cart</button>
+
+      <button id="checkout-btn">Checkout</button>
+    </div>    
+    <script>
+
+const menuIcon = document.getElementById('mi');
+        const closeIcon = document.getElementById('ci');
+        const navUl = document.querySelector('nav ul');
+
+        menuIcon.addEventListener('click', () => {
+            navUl.style.display = 'block';
+            closeIcon.style.display = 'block';
+            menuIcon.style.display = 'none';
+        });
+
+        closeIcon.addEventListener('click', () => {
+            navUl.style.display = 'none';
+            closeIcon.style.display = 'none';
+            menuIcon.style.display = 'block';
+        });
+
+
+      document.addEventListener('DOMContentLoaded', () => {
+          const loggedInUser = localStorage.getItem('loggedInUser');
+          if (loggedInUser) {
+              const cartItems = JSON.parse(localStorage.getItem(`cart_${loggedInUser}`)) || [];
+              renderCartTable(cartItems);
+          } else {
+              alert('No user is currently signed in. Please log in to view your cart.');
+              window.location.href = 'form.html';
+          }
+      });
+  
+      function renderCartTable(cartItems) {
+          const cartTableBody = document.getElementById('cart-table-body');
+          cartTableBody.innerHTML = '';
+          cartItems.forEach((item, index) => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td><img src="${item.image}" width="50" height="50"> ${item.name} </td>
+                  <td>
+                      ${Object.keys(item.options).map(option => `
+                      ${option}: ${item.options[option]}<br>
+                      `).join('')}
+                  </td>
+                  <td>₦${item.price}</td>
+                  <td>${item.quantity}</td>
+                  <td>₦${item.price * item.quantity}</td>
+                  <td><button class="delete-button" data-index="${index}"><i class="fa fa-trash"></i></button></td>
+              `;
+              cartTableBody.appendChild(row);
+          });
+          calculateTotalPrice(cartItems);
+      }
+  
+      function calculateTotalPrice(cartItems) {
+          const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+          document.getElementById('total-price').textContent = `Total: ₦${totalPrice}`;
+      }
+  
+      document.addEventListener('click', (e) => {
+          if (e.target.closest('.delete-button')) {
+              const index = e.target.closest('.delete-button').dataset.index;
+              const loggedInUser = localStorage.getItem('loggedInUser');
+              const cartItems = JSON.parse(localStorage.getItem(`cart_${loggedInUser}`)) || [];
+              cartItems.splice(index, 1);
+              localStorage.setItem(`cart_${loggedInUser}`, JSON.stringify(cartItems));
+              renderCartTable(cartItems);
+          }
+      });
+  
+      document.getElementById('clear-cart-btn').addEventListener('click', () => {
+          const loggedInUser = localStorage.getItem('loggedInUser');
+          localStorage.setItem(`cart_${loggedInUser}`, JSON.stringify([]));
+          renderCartTable([]);
+      });
+
+      
+    document.getElementById('checkout-btn').addEventListener('click', () => {
+      const loggedInUser = localStorage.getItem('loggedInUser');
+      if (loggedInUser) {
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const user = users.find(user => user.email === loggedInUser);
+      const userName = user ? user.name : "User's Name"; // Retrieve the user's name from localStorage
+      const cartItems = JSON.parse(localStorage.getItem(`cart_${loggedInUser}`)) || [];
+      const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+      let message = `User Name: ${userName}\n\n`;
+      cartItems.forEach(item => {
+        message += `Product: ${item.name}\nOptions: ${Object.keys(item.options).map(option => `${option}: ${item.options[option]}`).join(', ')}\nQuantity: ${item.quantity}\nAmount: ₦${item.price * item.quantity}\n\n`;
+      });
+      message += `Total Amount: ₦${totalAmount}`;
+
+      console.log("Sending email with the following details:");
+      console.log("Service ID: service_e9z4wt8");
+      console.log("Template ID: template_7359jla");
+      console.log("User Email: ", loggedInUser);
+      console.log("Message: ", message);
+
+      emailjs.send("service_e9z4wt8", "template_7359jla", {
+        user_email: loggedInUser,
+        user_name: userName,
+        message: message
+      })
+      .then((response) => {
+        console.log("Email sent successfully!", response.status, response.text);
+        alert("Checkout details sent successfully!");
+      })
+      .catch((error) => {
+        console.log("Failed to send email.", error);
+        alert("Failed to send checkout details.");
+      });
+
+      } else {
+      alert('No user is currently signed in. Please log in to checkout.');
+      window.location.href = 'form.html';
+      }
+    });
+    </script>
+    <script src="main.js"></script>          
+  </body>
+</html>
