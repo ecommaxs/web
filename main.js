@@ -6,7 +6,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (loggedInUser) {
             userIcon.href = 'user.html';
         } else {
-            userIcon.href = 'index.html';
+            userIcon.href = 'form.html';
         }
     } else {
         console.error("User not found.");
@@ -15,7 +15,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (loggedInUser) {
             advertise.href = 'advertise.html';
         } else {
-            adverise.href = 'index.html';
+            adverise.href = 'form.html';
         }
     } else {
         console.error("User not found.");
@@ -24,16 +24,16 @@ window.addEventListener('DOMContentLoaded', () => {
         if (loggedInUser) {
             product.href = 'product.html';
         } else {
-            product.href = 'index.html';
+            product.href = 'form.html';
         }
     } else {
         console.error("User not found.");
     }
     if (home) {
         if (loggedInUser) {
-            home.href = 'Home.html';
-        } else {
             home.href = 'index.html';
+        } else {
+            home.href = 'form.html';
         }
     } else {
         console.error("User not found.");
