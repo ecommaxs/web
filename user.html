@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/bogrands (1).png">
+    <title>My Account</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bokor&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="usa.css">
+</head>
+<body>
+    <header>
+        <div class="logo"><h1>ECOMMERCE<span>WEBSITE</span></h1></div>
+        <nav>
+          <ul>
+            <li><a href="Home.html">HOME</a></li>
+            <li><a href="product.html">PRODUCT</a></li>
+            <li><a href="advertise.html">ADVERTISE</a></li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+            <a href="cart.html" class="cart-icon">
+              <i class="fa fa-shopping-basket"></i>
+            </a>
+          <a href="#" class="menu-icon" id="mi">
+            <i class="fa fa-bars"></i>
+          </a>
+          <a href="#" class="close-icon" id="ci" style="display: none;">
+            <i class="fa fa-times"></i>
+          </a>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <div class="section profile-info" data-section="profile-info">
+            <h2>Profile Info</h2>
+            <input type="file" id="profile-picture-input" accept="image/*" style="display: none;">
+            <label for="profile-picture-input" class="custom-file-upload">Choose</label>
+            <img id="profile-picture" alt="Profile Picture">
+            <h3 id="username-display"></h3>
+        </div>
+
+        <div class="section money-section" data-section="money-section">
+            <h2>Money Section</h2>
+            <button id="deposit-button">Deposit</button>
+            <div id="deposit-options" style="display: none;">
+                <button id="deposit-naira">Naira</button>
+                <button id="deposit-other">Other Currency</button>
+            </div>
+            <div id="deposit-details" style="display: none;"></div>
+        </div>
+
+        <div class="section account-settings" data-section="account-settings">
+            <h2>Account Settings</h2>
+            <button id="change-username-button">Change Username</button>
+            <div id="username-options" style="display: none;">
+                <input type="text" id="new-username-input" placeholder="New Username">
+                <button id="submit-username-change">Submit</button>
+            </div>
+            <button id="change-password-button">Change Password</button>
+            <div id="password-options" style="display: none;">
+                <input type="password" id="old-password-input" placeholder="Old Password">
+                <input type="password" id="new-password-input" placeholder="New Password">
+                <button id="submit-password-change">Submit</button>
+            </div>
+            <button id="delete-account-button">Delete Account</button>
+            <script>
+                document.getElementById('delete-account-button').addEventListener('click', () => {
+                    document.getElementById('confirm-delete-modal').style.display = 'flex';
+                });
+            </script>
+        </div>
+
+        <div class="section affiliate-section" data-section="affiliate-section">
+            <h2>Affiliate Marketing</h2>
+            <button id="affiliate-button">Affiliate Marketing Registration</button>
+        </div>
+
+        <div class="section logout-section" data-section="logout-section">
+            <h2>Logout</h2>
+            <button id="logout-button">Logout</button>
+        </div>
+    </div>
+
+    <!-- Modals for confirming account deletion -->
+    <div id="confirm-delete-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Are you sure you want to delete this account?</h3>
+            <button id="confirm-delete-button">Yes</button>
+            <button id="cancel-delete-button">No</button>
+        </div>
+    </div>
+    <script src="main.js"></script>
+    <script>
+
+const menuIcon = document.getElementById('mi');
+        const closeIcon = document.getElementById('ci');
+        const navUl = document.querySelector('nav ul');
+
+        menuIcon.addEventListener('click', () => {
+            navUl.style.display = 'block';
+            closeIcon.style.display = 'block';
+            menuIcon.style.display = 'none';
+        });
+
+        closeIcon.addEventListener('click', () => {
+            navUl.style.display = 'none';
+            closeIcon.style.display = 'none';
+            menuIcon.style.display = 'block';
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+    // Toggle sections
+    document.querySelectorAll('.section h2').forEach(header => {
+        const section = header.parentElement;
+        const closeButton = document.createElement('span');
+        closeButton.className = 'close-button';
+        closeButton.innerHTML = '&times;';
+        header.appendChild(closeButton);
+
+        header.addEventListener('click', () => {
+            section.classList.toggle('active');
+            const content = section.querySelectorAll('div');
+            content.forEach(div => {
+                if (div.style.display === 'block' || div.style.display === '') {
+                    div.style.display = 'none';
+                } else {
+                    div.style.display = 'block';
+                }
+            });
+        });
+
+        closeButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            section.classList.remove('active');
+            const content = section.querySelectorAll('div');
+            content.forEach(div => {
+                div.style.display = 'none';
+            });
+        });
+    });
+
+    // Open IndexedDB
+    function openDatabase() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('EcommerceDB', 1);
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains('users')) {
+                    db.createObjectStore('users', { keyPath: 'username' });
+                }
+            };
+            request.onsuccess = (event) => {
+                resolve(event.target.result);
+            };
+            request.onerror = (event) => {
+                reject(event.target.errorCode);
+            };
+        });
+    }
+
+    // Display user information
+    async function displayUserInfo() {
+        const db = await openDatabase();
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (loggedInUser) {
+            const transaction = db.transaction(['users'], 'readonly');
+            const objectStore = transaction.objectStore('users');
+            const request = objectStore.get(loggedInUser);
+
+            request.onsuccess = (event) => {
+                const user = event.target.result;
+                if (user) {
+                    document.getElementById('username-display').innerText = user.username;
+                    if (user.profilePicture) {
+                        document.getElementById('profile-picture').src = user.profilePicture;
+                    }
+                }
+            };
+            request.onerror = (event) => {
+                console.error('Error fetching user data:', event.target.errorCode);
+            };
+        }
+    }
+
+    // Update profile picture
+    document.getElementById('profile-picture-input').addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async function () {
+            const db = await openDatabase();
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (loggedInUser) {
+                const transaction = db.transaction(['users'], 'readwrite');
+                const objectStore = transaction.objectStore('users');
+                const request = objectStore.get(loggedInUser);
+
+                request.onsuccess = (event) => {
+                    const user = event.target.result;
+                    if (user) {
+                        user.profilePicture = reader.result;
+                        const updateRequest = objectStore.put(user);
+                        updateRequest.onsuccess = () => {
+                            document.getElementById('profile-picture').src = reader.result;
+                        };
+                    }
+                };
+                request.onerror = (event) => {
+                    console.error('Error updating profile picture:', event.target.errorCode);
+                };
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Show Change Username options
+    document.getElementById('change-username-button').addEventListener('click', () => {
+        const usernameOptions = document.getElementById('username-options');
+        usernameOptions.style.display = usernameOptions.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Show Change Password options
+    document.getElementById('change-password-button').addEventListener('click', () => {
+        const passwordOptions = document.getElementById('password-options');
+        passwordOptions.style.display = passwordOptions.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Change username
+    document.getElementById('submit-username-change').addEventListener('click', async () => {
+        const newUsername = document.getElementById('new-username-input').value;
+        const db = await openDatabase();
+        const loggedInUser = localStorage.getItem('loggedInUser');
+
+        if (loggedInUser && newUsername) {
+            const transaction = db.transaction(['users'], 'readwrite');
+            const objectStore = transaction.objectStore('users');
+            const request = objectStore.get(loggedInUser);
+
+            request.onsuccess = (event) => {
+                const user = event.target.result;
+                if (user) {
+                    user.username = newUsername;
+                    const updateRequest = objectStore.put(user);
+                    updateRequest.onsuccess = () => {
+                        alert('Username updated successfully');
+                        localStorage.setItem('loggedInUser', newUsername);
+                        document.getElementById('username-display').innerText = newUsername;
+                        document.getElementById('username-options').style.display = 'none';
+                    };
+                }
+            };
+            request.onerror = (event) => {
+                console.error('Error updating username:', event.target.errorCode);
+            };
+        }
+    });
+
+    // Change password
+    document.getElementById('submit-password-change').addEventListener('click', async () => {
+        const oldPassword = document.getElementById('old-password-input').value;
+        const newPassword = document.getElementById('new-password-input').value;
+        const db = await openDatabase();
+        const loggedInUser = localStorage.getItem('loggedInUser');
+
+        if (loggedInUser && oldPassword && newPassword) {
+            const transaction = db.transaction(['users'], 'readwrite');
+            const objectStore = transaction.objectStore('users');
+            const request = objectStore.get(loggedInUser);
+
+            request.onsuccess = (event) => {
+                const user = event.target.result;
+                if (user && user.password === oldPassword) {
+                    user.password = newPassword;
+                    const updateRequest = objectStore.put(user);
+                    updateRequest.onsuccess = () => {
+                        alert('Password updated successfully');
+                        document.getElementById('password-options').style.display = 'none';
+                    };
+                } else {
+                    alert('Old password is incorrect');
+                }
+            };
+            request.onerror = (event) => {
+                console.error('Error updating password:', event.target.errorCode);
+            };
+        }
+    });
+
+    // Delete account
+    document.getElementById('confirm-delete-button').addEventListener('click', async () => {
+        const db = await openDatabase();
+        const loggedInUser = localStorage.getItem('loggedInUser');
+
+        if (loggedInUser) {
+            const transaction = db.transaction(['users'], 'readwrite');
+            const objectStore = transaction.objectStore('users');
+            const request = objectStore.delete(loggedInUser);
+
+            request.onsuccess = () => {
+                alert('Account deleted successfully');
+                localStorage.removeItem('loggedInUser');
+                window.location.href = 'form.html';
+            };
+            request.onerror = (event) => {
+                console.error('Error deleting account:', event.target.errorCode);
+            };
+        }
+    });
+
+    // Cancel account deletion
+    document.getElementById('cancel-delete-button').addEventListener('click', () => {
+        document.getElementById('confirm-delete-modal').style.display = 'none';
+    });
+
+    // Redirect to affiliate marketing registration form
+    document.getElementById('affiliate-button').addEventListener('click', () => {
+        window.location.href = 'affiliate-registration.html';
+    });
+
+    // Log out user
+    document.getElementById('logout-button').addEventListener('click', () => {
+        localStorage.removeItem('loggedInUser');
+        window.location.href = 'form.html';
+    });
+
+    // Call this function on page load
+    window.onload = displayUserInfo;
+
+    // Handle deposit options
+    const depositButton = document.getElementById('deposit-button');
+    const depositOptions = document.getElementById('deposit-options');
+    const depositNaira = document.getElementById('deposit-naira');
+    const depositOther = document.getElementById('deposit-other');
+    const depositDetails = document.getElementById('deposit-details');
+
+    depositButton.addEventListener('click', () => {
+        depositOptions.style.display = 'block';
+    });
+
+    depositNaira.addEventListener('click', () => {
+        depositDetails.style.display = 'block';
+        depositDetails.innerHTML = `
+            <h3>Naira Account Details</h3>
+            <p>Account Name: Your Account Name</p>
+            <p>Account Number: 1234567890</p>
+            <p>Narration: UserID - Product Name</p>
+            <button id="copy-naira-details">Copy Details</button>
+        `;
+        document.getElementById('copy-naira-details').addEventListener('click', () => {
+            copyDetails('Account Name: Your Account Name\nAccount Number: 1234567890\nNarration: UserID - Product Name');
+        });
+    });
+
+    depositOther.addEventListener('click', () => {
+        depositDetails.style.display = 'block';
+        depositDetails.innerHTML = `
+            <h3>Trust Wallet Address</h3>
+            <p>Address: your-trust-wallet-address</p>
+            <button id="copy-trust-wallet-details">Copy Address</button>
+        `;
+        document.getElementById('copy-trust-wallet-details').addEventListener('click', () => {
+            copyDetails('Address: your-trust-wallet-address');
+        });
+    });
+
+    function copyDetails(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Details copied to clipboard');
+        }).catch(err => {
+            console.error('Error copying details:', err);
+        });
+    }
+    
+    // Display user info on page load
+    window.onload = displayUserInfo;
+});
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta https-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="images/bogrands (1).png">
+        <title>Clearance</title>
+        <!-- CSS-LINK -->
+        <link rel="stylesheet" href="products-details.css">    
+                                            
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap" rel="stylesheet">
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Bokor&family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Pacifico&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+        <link rel="stylesheet"href="https://kit.font-awesome.com/36b5ceabf7.js">
+    </head>
+  <body>
+    <header>
+      <div class="logo"><h1>ECOMMERCE<span>WEBSITE</span></h1></div>
+      <nav>
+        <ul>
+          <li><a href="product.html">PRODUCT</a></li>
+          <li><a href="advertise.html">ADVERTISE</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+          <a href="user.html" class="user-icon">
+            <i class="fa fa-user-circler"></i>
+          </a>
+          <a href="cart.html" class="cart-icon">
+            <i class="fa fa-shopping-basket"></i>
+          </a>
+        <a href="#" class="menu-icon" id="mi">
+          <i class="fa fa-bars"></i>
+        </a>
+        <a href="#" class="close-icon" id="ci" style="display: none;">
+          <i class="fa fa-times"></i>
+        </a>
+      </div>
+    </header>
+
+    <div class="product-detail">
+      <h1 id="product-name"></h1>
+      <img id="product-image" src="" alt="" width="200px" height="200px">
+      <div id="product-options"></div>
+      <div id="product-price"></div>
+      <input id="quantity" type="number" value="1" min="1">
+      <button id="add-to-cart-button">Add to Cart</button>
+    </div>
+
+    <script>
+        const productsData = [
+            {
+                "name": "Iphone 16",
+                "image": "images/Iphone 16.jpg",
+                "price": 2500000,
+                "options": [
+                    {
+                        "name": "Color",
+                        "values": ["Red", "Blue", "Green"]
+                    },
+                    {
+                        "name": "Size",
+                        "values": ["Small", "Medium", "Large"]
+                    }
+                ]
+            },
+            {
+                "name": "Luxury Frame",
+                "image": "images/WAT.jpg",
+                "price": 80000,
+                "options": [
+                    {
+                        "name": "Theme",
+                        "values": ["black"]
+                    }
+                ]
+            },
+            {
+                "name": "Luxury Blue frame",
+                "image": "images/WOA.jpg",
+                "price": 80000,
+                "options": [
+                    {
+                        "name": "Theme",
+                        "values": ["Blue"]
+                    }
+                ]
+            },
+            {
+                "name": "Nike Air-force 1",
+                "image": "images/SHOE.jpg",
+                "price": 100000,
+                "options": [
+                    {
+                        "name": "Color",
+                        "values": ["Red", "Blue", "Green"]
+                    },
+                    {
+                        "name": "Size",
+                        "values": ["39", "40", "41", "42", "43", "44", "45"]
+                    }
+                ]
+            }
+        ];
+      
+        // Load product data
+        const data = productsData;
+      
+        // Get product ID from URL parameter
+        const productId = new URLSearchParams(window.location.search).get('name');
+      
+        // Find product by ID
+        const product = data.find(p => p.name === productId);
+      
+        // Display product details
+        document.getElementById('product-name').textContent = product.name;
+        document.getElementById('product-image').src = product.image;
+      
+        // Display product options
+        const productOptions = document.getElementById('product-options');
+        product.options.forEach(option => {
+            const optionElement = document.createElement('div');
+            optionElement.innerHTML = `<h4>${option.name}</h4>`;
+            option.values.forEach(value => {
+                const valueElement = document.createElement('div');
+                valueElement.innerHTML = `
+                    <input type="radio" id="${option.name}-${value}" name="${option.name}" value="${value}">
+                    <label for="${option.name}-${value}">${value}</label>
+                `;
+                optionElement.appendChild(valueElement);
+            });
+            productOptions.appendChild(optionElement);
+        });
+      
+        // Display product price
+        document.getElementById('product-price').textContent = `Price: ${product.price}`;
+      
+        // Add event listener to quantity input
+        document.getElementById('quantity').addEventListener('input', () => {
+            const quantity = document.getElementById('quantity').valueAsNumber;
+            if (quantity < 1) {
+                document.getElementById('quantity').value = 1;
+            }
+            updateTotalPrice();
+        });
+      
+        // Add event listener to option radio buttons
+        product.options.forEach(option => {
+            option.values.forEach(value => {
+                document.getElementById(`${option.name}-${value}`).addEventListener('change', () => {
+                    updateTotalPrice();
+                });
+            });
+        });
+      
+        // Function to update total price
+        function updateTotalPrice() {
+            const selectedOptions = {};
+            product.options.forEach(option => {
+                const selectedOption = document.querySelector(`input[name="${option.name}"]:checked`);
+                if (selectedOption) {
+                    selectedOptions[option.name] = selectedOption.value;
+                }
+            });
+            const quantity = document.getElementById('quantity').valueAsNumber;
+            const totalPrice = product.price * quantity; 
+            document.getElementById('product-price').textContent = `Total Price: ${totalPrice}`;
+        }
+      
+        // Add event listener to add to cart button
+        document.getElementById('add-to-cart-button').addEventListener('click', () => {
+            // Get selected options and quantity
+            const selectedOptions = {};
+            product.options.forEach(option => {
+                const selectedOption = document.querySelector(`input[name="${option.name}"]:checked`);
+                selectedOptions[option.name] = selectedOption.value;
+            });
+            const quantity = document.getElementById('quantity').valueAsNumber;
+    
+            // Get logged-in user
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (loggedInUser) {
+                // Add product to user-specific cart
+                const cart = JSON.parse(localStorage.getItem(`cart_${loggedInUser}`)) || [];
+                cart.push({
+                    id: productId,
+                    name: product.name,
+                    image: product.image,
+                    options: selectedOptions,
+                    quantity: quantity,
+                    price: product.price
+                });
+                localStorage.setItem(`cart_${loggedInUser}`, JSON.stringify(cart));
+    
+                // Redirect to cart page
+                window.location.href = 'cart.html';
+            } else {
+                alert('You need to be logged in to add products to the cart.');
+                window.location.href = 'form.html'; // Redirect to the login form page
+            }
+        });
+      
+        // Menu bar and close icon script
+        const menuIcon = document.getElementById('mi');
+        const closeIcon = document.getElementById('ci');
+        const navUl = document.querySelector('nav ul');
+        menuIcon.addEventListener('click', () => {
+            navUl.style.display = 'block';
+            closeIcon.style.display = 'block';
+            menuIcon.style.display = 'none';
+        });
+        closeIcon.addEventListener('click', () => {
+            navUl.style.display = 'none';
+            closeIcon.style.display = 'none';
+            menuIcon.style.display = 'block';
+        });
+     
+    </script>
+      
+<script src="main.js"></script>
+</body>
+</html>
+
+
+
+    

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/bogrands (1).png">
+    <title>SHOPIZZY | Your Last Shopping Bustop</title>
+
+    <!-- CSS Links -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&family=Roboto+Serif:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bokor&family=Lobster+Two:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="form.css">
+  </head>
+  <body>
+
+    <div class="wrapper">
+      <div class="form-box login">
+        <h2>LOGIN</h2>
+        <form id="loginForm">
+          <div class="input-box">
+            <input type="text" id="login-username" placeholder="Username" required>
+            <label>Username</label>
+            <i class="fa fa-user"></i>
+          </div>
+          <div class="input-box">
+            <input type="password" id="login-password" placeholder="Password" required>
+            <label>Password</label>
+            <i class="fa fa-lock"></i>
+          </div>
+          <div class="ckb">
+            <input type="checkbox" id="keep-me-logged-in">
+            <label>Keep me logged in</label>
+          </div>
+          <div class="btn">
+            <button type="submit" id="login-btn">Login</button>
+          </div>
+          <div class="logreg-link">
+            <p>Dont have an account? <a id="signup-link" class="register-link">Sign Up</a></p>
+          </div>
+        </form>
+      </div>
+
+      <div class="form-box register">
+        <h2>Sign Up</h2>
+        <form id="registerForm">
+          <div class="input-box">
+            <input type="text" id="register-username" placeholder="Username" required>
+            <label>Username</label>
+            <i class="fa fa-user"></i>
+          </div>
+          <div class="input-box">
+            <input type="email" id="email" placeholder="Email" required>
+            <label>Email</label>
+            <i class="fa fa-envelope"></i>
+          </div>
+          <div class="input-box">
+            <input type="password" id="register-password" placeholder="Password" required>
+            <label>Password</label>
+            <i class="fa fa-lock"></i>
+          </div>
+          <div class="tap">
+            <input type="checkbox" id="Terms-and-Privacy" required>
+            <label><a href="#" class="tamp">Terms and Privacy</a></label>
+          </div>
+          <div class="btn">
+            <button type="submit" id="signup-btn">Sign Up</button>
+          </div>
+          <div class="logreg-link">
+            <p>Already have an account? <a id="login-link" class="login-link">Login</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Switch between forms
+      const loginFormBox = document.querySelector('.form-box.login');
+      const registerFormBox = document.querySelector('.form-box.register');
+      const signUpButton = document.querySelector('.logreg-link p a.register-link');
+      const loginButton = document.querySelector('.logreg-link p a.login-link');
+
+      signUpButton.addEventListener('click', () => {
+        loginFormBox.style.display = 'none';
+        registerFormBox.style.display = 'flex';
+      });
+
+      loginButton.addEventListener('click', () => {
+        registerFormBox.style.display = 'none';
+        loginFormBox.style.display = 'flex';
+      });
+
+      // Open IndexedDB
+      function openDatabase() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open('EcommerceDB', 1);
+
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('users')) {
+              db.createObjectStore('users', { keyPath: 'username' });
+            }
+          };
+
+          request.onsuccess = (event) => {
+            resolve(event.target.result);
+          };
+
+          request.onerror = (event) => {
+            reject(event.target.errorCode);
+          };
+        });
+      }
+
+      // Register User
+      async function registerUser(username, password, email) {
+        const db = await openDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(['users'], 'readwrite');
+          const objectStore = transaction.objectStore('users');
+          const request = objectStore.add({ username, password, email });
+
+          request.onsuccess = () => {
+            resolve('User registered successfully');
+          };
+
+          request.onerror = (event) => {
+            reject(event.target.errorCode);
+          };
+        });
+      }
+
+      // Login User
+      async function loginUser(username, password) {
+        const db = await openDatabase();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(['users'], 'readonly');
+          const objectStore = transaction.objectStore('users');
+          const request = objectStore.get(username);
+
+          request.onsuccess = (event) => {
+            const user = event.target.result;
+            if (user && user.password === password) {
+              resolve(user); // Resolve the user object
+            } else {
+              reject('Invalid username or password');
+            }
+          };
+
+          request.onerror = (event) => {
+            reject(event.target.errorCode);
+          };
+        });
+      }
+
+      // Handle Registration Form Submission
+      document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = e.target.querySelector('#register-username').value;
+        const password = e.target.querySelector('#register-password').value;
+        const email = e.target.querySelector('#email').value;
+
+        try {
+          const message = await registerUser(username, password, email);
+          console.log(message);
+          alert('Registration successful! Please log in.');
+          // Clear the form fields after registration
+          e.target.reset();
+          // Show login form
+          registerFormBox.style.display = 'none';
+          loginFormBox.style.display = 'flex';
+        } catch (error) {
+          console.error('Error registering user:', error);
+          alert('Error registering user.');
+        }
+      });
+
+      // Handle Login Form Submission
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = e.target.querySelector('#login-username').value;
+        const password = e.target.querySelector('#login-password').value;
+        const keepMeLoggedIn = e.target.querySelector('#keep-me-logged-in').checked;
+
+        try {
+          const user = await loginUser(username, password);
+          console.log('Login successful');
+          alert('Login successful!');
+
+          // Save login state if "Keep me logged in" is checked
+          if (keepMeLoggedIn) {
+            localStorage.setItem('loggedInUser', user.email); // Store the user's email
+          } else {
+            localStorage.removeItem('loggedInUser');
+          }
+
+          // Redirect to homepage or dashboard
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error logging in:', error);
+          alert('Invalid username or password.');
+        }
+      });
+
+      // Auto-login if "Keep me logged in" is enabled
+      document.addEventListener('DOMContentLoaded', async () => {
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (loggedInUser) {
+          try {
+            // For simplicity, assume successful login if user exists in IndexedDB
+            const db = await openDatabase();
+            const transaction = db.transaction(['users'], 'readonly');
+            const objectStore = transaction.objectStore('users');
+            const request = objectStore.get(loggedInUser);
+
+            request.onsuccess = (event) => {
+              const user = event.target.result;
+              if (user) {
+                // Auto-login successful, redirect to homepage or dashboard
+                window.location.href = 'index.html';
+              }
+            };
+
+            request.onerror = (event) => {
+              console.error('Error checking login state:', event.target.errorCode);
+            };
+          } catch (error) {
+            console.error('Error during auto-login:', error);
+          }
+        }
+      });
+    </script>    
+  </body>
+</html>
