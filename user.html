@@ -350,25 +350,25 @@ const menuIcon = document.getElementById('mi');
         depositDetails.style.display = 'block';
         depositDetails.innerHTML = `
             <h3>Naira Account Details</h3>
-            <p>Account Name: Your Account Name</p>
-            <p>Account Number: 1234567890</p>
-            <p>Narration: UserID - Product Name</p>
+            <p>Account Name: Chikodili Ugochukwu Paul . B</p>
+            <p>Account Number: 3190701919</p>
+            <p>Narration: User Id (User Name) - Product Name</p>
             <button id="copy-naira-details">Copy Details</button>
         `;
         document.getElementById('copy-naira-details').addEventListener('click', () => {
-            copyDetails('Account Name: Your Account Name\nAccount Number: 1234567890\nNarration: UserID - Product Name');
+            copyDetails('Account Name: Chikodili Ugochukwu Paul . B\nAccount Number: 3190701919\nNarration: User Id (User Name) - Product Name');
         });
     });
 
     depositOther.addEventListener('click', () => {
         depositDetails.style.display = 'block';
         depositDetails.innerHTML = `
-            <h3>Trust Wallet Address</h3>
-            <p>Address: your-trust-wallet-address</p>
+            <h3>Trust Wallet Addres</h3>  
+            <p>Address: Not Available</p>
             <button id="copy-trust-wallet-details">Copy Address</button>
         `;
         document.getElementById('copy-trust-wallet-details').addEventListener('click', () => {
-            copyDetails('Address: your-trust-wallet-address');
+            copyDetails('Address: Not Available');
         });
     });
 
