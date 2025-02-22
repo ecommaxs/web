@@ -6,22 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="images/bogrands (1).png">
     <title>SHOPIZZY | Your Last Shopping Bustop</title>
-
     <!-- CSS Links -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@100..900&family=Roboto+Serif:wght@100..900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Bokor&family=Lobster+Two:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@latest/dist/umd/supabase.min.js"></script>
     <link rel="stylesheet" href="form.css">
+    <!-- Inline CSS for Links -->
+    <style>
+      #show-signup-form, #show-login-form {
+        display: inline-block;
+        color: #ffd6d6;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 5px;
+        font-weight: bold;
+        text-shadow: 1px 0 #000000;
+      }
+      #show-signup-form:hover, #show-login-form:hover {
+        color: #be0606;
+      }
+    </style>
   </head>
   <body>
-
     <div class="wrapper">
-      <div class="form-box login">
+      <div class="form-box login" style="display: flex;">
         <h2>LOGIN</h2>
         <form id="loginForm">
           <div class="input-box">
@@ -42,12 +53,12 @@
             <button type="submit" id="login-btn">Login</button>
           </div>
           <div class="logreg-link">
-            <p>Don't have an account? <a id="signup-link" class="register-link">Sign Up</a></p>
+            <p>Don't have an account? <a id="show-signup-form" class="register-link" href="#">Sign Up</a></p>
           </div>
         </form>
       </div>
 
-      <div class="form-box register">
+      <div class="form-box register" style="display: none;">
         <h2>Sign Up</h2>
         <form id="registerForm">
           <div class="input-box">
@@ -73,115 +84,263 @@
             <button type="submit" id="signup-btn">Sign Up</button>
           </div>
           <div class="logreg-link">
-            <p>Already have an account? <a id="login-link" class="login-link">Login</a></p>
+            <p>Already have an account? <a id="show-login-form" class="login-link" href="#">Login</a></p>
           </div>
         </form>
       </div>
     </div>
 
+    <!-- Bcrypt CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
     <script>
-      // Switch between forms
-      const loginFormBox = document.querySelector('.form-box.login');
-      const registerFormBox = document.querySelector('.form-box.register');
-      const signUpButton = document.querySelector('.logreg-link p a.register-link');
-      const loginButton = document.querySelector('.logreg-link p a.login-link');
-
-      signUpButton.addEventListener('click', () => {
-        loginFormBox.style.display = 'none';
-        registerFormBox.style.display = 'flex';
+      // Fallback if bcrypt fails to load
+      window.addEventListener('load', () => {
+        if (typeof bcrypt === 'undefined') {
+          console.error('bcryptjs failed to load from CDN');
+          window.bcrypt = {
+            genSalt: function(n) { return new Promise(resolve => resolve('salt')); },
+            hash: function(data, salt) { return new Promise(resolve => resolve(data + '-hashed')); },
+            compare: function(data, hash) { return new Promise(resolve => resolve(data + '-hashed' === hash)); }
+          };
+        } else {
+          console.log('bcryptjs loaded successfully');
+        }
       });
 
-      loginButton.addEventListener('click', () => {
-        registerFormBox.style.display = 'none';
-        loginFormBox.style.display = 'flex';
+      // IndexedDB Setup
+      let db;
+      const request = indexedDB.open('ShopizzyDB', 1);
+
+      request.onupgradeneeded = (event) => {
+        db = event.target.result;
+        const userStore = db.createObjectStore('users', { keyPath: 'username' });
+        userStore.createIndex('email', 'email', { unique: true });
+        console.log('IndexedDB setup complete');
+      };
+
+      request.onsuccess = (event) => {
+        db = event.target.result;
+        console.log('IndexedDB initialized successfully');
+      };
+
+      request.onerror = (event) => {
+        console.error('IndexedDB initialization error:', event.target.errorCode);
+      };
+
+      // Input validation
+      function validateInput(username, email, password) {
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,16}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+        return {
+          username: usernameRegex.test(username),
+          email: email && emailRegex.test(email),
+          password: passwordRegex.test(password),
+          message: !usernameRegex.test(username) 
+            ? "Username must be 3-16 characters (letters, numbers, _, -)"
+            : !emailRegex.test(email) 
+            ? "Invalid email format"
+            : !passwordRegex.test(password) 
+            ? "Password must be 8+ characters with letters and numbers"
+            : ""
+        };
+      }
+
+      // Form switching logic
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM fully loaded');
+        const loginFormBox = document.querySelector('.form-box.login');
+        const registerFormBox = document.querySelector('.form-box.register');
+        const showSignupForm = document.getElementById('show-signup-form');
+        const showLoginForm = document.getElementById('show-login-form');
+
+        if (!showSignupForm || !showLoginForm) {
+          console.error('Toggle links not found');
+          return;
+        }
+
+        showSignupForm.addEventListener('click', (event) => {
+          event.preventDefault();
+          console.log('Show signup form clicked');
+          loginFormBox.style.display = 'none';
+          registerFormBox.style.display = 'flex';
+        });
+
+        showLoginForm.addEventListener('click', (event) => {
+          event.preventDefault();
+          console.log('Show login form clicked');
+          registerFormBox.style.display = 'none';
+          loginFormBox.style.display = 'flex';
+        });
       });
 
-      // Register User
+      // Register User with IndexedDB
       async function registerUser(username, password, email) {
-        const response = await fetch('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbws46KucC6buXNASL2YkTuExD5N2StuzmunPHdwhe0PplKD7CsRnbHpMwSVSA0zHzcs/exec', {
-          method: 'POST',
-          body: JSON.stringify({ action: 'registerUser', username, password, email }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        return response.json();
-      }
+        console.log('Register function called with:', { username, email });
+        if (!db) {
+          console.error('Database not initialized yet');
+          alert('Please wait, database is still initializing.');
+          return;
+        }
 
-      // Login User
-      async function loginUser(username, password) {
-        const response = await fetch('https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbws46KucC6buXNASL2YkTuExD5N2StuzmunPHdwhe0PplKD7CsRnbHpMwSVSA0zHzcs/exec', {
-          method: 'POST',
-          body: JSON.stringify({ action: 'loginUser', username, password }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        return response.json();
-      }
-
-      // Handle Registration Form Submission
-      document.getElementById('registerForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = e.target.querySelector('#register-username').value;
-        const password = e.target.querySelector('#register-password').value;
-        const email = e.target.querySelector('#email').value;
+        const validation = validateInput(username, email, password);
+        if (!validation.username || !validation.email || !validation.password) {
+          console.log('Validation failed:', validation.message);
+          alert(validation.message);
+          return;
+        }
 
         try {
-          const response = await registerUser(username, password, email);
-          if (response.status === 'success') {
+          const salt = await bcrypt.genSalt(10);
+          const hashedPassword = await bcrypt.hash(password, salt);
+          console.log('Password hashed successfully:', hashedPassword);
+
+          const transaction = db.transaction(['users'], 'readwrite');
+          const userStore = transaction.objectStore('users');
+
+          // Check if username or email already exists
+          const usernameRequest = userStore.get(username);
+          const emailIndex = userStore.index('email');
+          const emailRequest = emailIndex.get(email);
+
+          await new Promise((resolve, reject) => {
+            usernameRequest.onsuccess = () => resolve();
+            usernameRequest.onerror = () => reject(usernameRequest.error);
+          });
+
+          if (usernameRequest.result) {
+            console.log('Username already exists:', username);
+            alert('Username already exists!');
+            return;
+          }
+
+          await new Promise((resolve, reject) => {
+            emailRequest.onsuccess = () => resolve();
+            emailRequest.onerror = () => reject(emailRequest.error);
+          });
+
+          if (emailRequest.result) {
+            console.log('Email already exists:', email);
+            alert('Email already exists!');
+            return;
+          }
+
+          // Add new user
+          const newUser = { username, email, password: hashedPassword };
+          console.log('Attempting to add user:', newUser);
+          const addRequest = userStore.add(newUser);
+
+          await new Promise((resolve, reject) => {
+            addRequest.onsuccess = () => {
+              console.log('User registered successfully:', newUser);
+              resolve();
+            };
+            addRequest.onerror = () => {
+              console.error('Error adding user:', addRequest.error);
+              reject(addRequest.error);
+            };
+          });
+
+          transaction.oncomplete = () => {
+            console.log('Transaction completed successfully');
             alert('Registration successful! Please log in.');
-            e.target.reset();
-            registerFormBox.style.display = 'none';
-            loginFormBox.style.display = 'flex';
-          } else {
-            alert('Error registering user: ' + response.message);
-          }
-        } catch (error) {
-          console.error('Error registering user:', error);
-          alert('Error registering user.');
-        }
-      });
+            document.querySelector('.form-box.register').style.display = 'none';
+            document.querySelector('.form-box.login').style.display = 'flex';
+          };
 
-      // Handle Login Form Submission
-      document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = e.target.querySelector('#login-username').value;
-        const password = e.target.querySelector('#login-password').value;
-        const keepMeLoggedIn = e.target.querySelector('#keep-me-logged-in').checked;
+          transaction.onerror = () => {
+            console.error('Transaction error:', transaction.error);
+            alert('An error occurred during registration: ' + transaction.error);
+          };
+        } catch (error) {
+          console.error('Error in registration process:', error);
+          alert('An unexpected error occurred: ' + error.message);
+        }
+      }
+
+      // Login User with IndexedDB
+      async function loginUser(username, password) {
+        console.log('Login function called with:', { username });
+        if (!db) {
+          console.error('Database not initialized yet');
+          alert('Please wait, database is still initializing.');
+          return;
+        }
+
+        const validation = validateInput(username, "", password);
+        if (!validation.username || !validation.password) {
+          console.log('Validation failed:', validation.message);
+          alert(validation.message);
+          return;
+        }
 
         try {
-          const response = await loginUser(username, password);
-          if (response.status === 'success') {
-            alert('Login successful!');
+          const transaction = db.transaction(['users'], 'readonly');
+          const userStore = transaction.objectStore('users');
+          const request = userStore.get(username);
 
-            // Save login state if "Keep me logged in" is checked
-            if (keepMeLoggedIn) {
-              localStorage.setItem('loggedInUser', response.user.username);
-            } else {
-              localStorage.removeItem('loggedInUser');
-            }
+          await new Promise((resolve, reject) => {
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(request.error);
+          });
 
-            // Redirect to homepage or dashboard
-            window.location.href = 'index.html';
-          } else {
+          const user = request.result;
+          if (!user) {
+            console.log('User not found:', username);
             alert('Invalid username or password.');
+            return;
           }
-        } catch (error) {
-          console.error('Error logging in:', error);
-          alert('Invalid username or password.');
-        }
-      });
 
-      // Auto-login if "Keep me logged in" is enabled
-      document.addEventListener('DOMContentLoaded', async () => {
-        const loggedInUser = localStorage.getItem('loggedInUser');
-        if (loggedInUser) {
-          try {
-            const response = await loginUser(loggedInUser, '');
-            if (response.status === 'success') {
-              window.location.href = 'index.html';
-            }
-          } catch (error) {
-            console.error('Error during auto-login:', error);
+          const passwordMatch = await bcrypt.compare(password, user.password);
+          if (!passwordMatch) {
+            console.log('Password does not match for:', username);
+            alert('Invalid username or password.');
+            return;
           }
+
+          console.log('Login successful for:', username);
+          const keepMeLoggedIn = document.getElementById('keep-me-logged-in').checked;
+          if (keepMeLoggedIn) {
+            const token = crypto.randomUUID();
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('loggedInUser', username);
+          }
+
+          alert('Login successful!');
+          window.location.href = 'user.html'; // Redirect to user page
+        } catch (error) {
+          console.error('Error in login process:', error);
+          alert('An unexpected error occurred: ' + error.message);
         }
+      }
+
+      // Handle Form Submissions
+      document.addEventListener('DOMContentLoaded', () => {
+        const registerForm = document.getElementById('registerForm');
+        const loginForm = document.getElementById('loginForm');
+
+        if (!registerForm || !loginForm) {
+          console.error('Forms not found in DOM');
+          return;
+        }
+
+        registerForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          console.log('Signup form submitted');
+          const username = document.getElementById('register-username').value.trim();
+          const password = document.getElementById('register-password').value;
+          const email = document.getElementById('email').value.trim();
+          await registerUser(username, password, email);
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          console.log('Login form submitted');
+          const username = document.getElementById('login-username').value.trim();
+          const password = document.getElementById('login-password').value;
+          await loginUser(username, password);
+        });
       });
     </script>
   </body>
